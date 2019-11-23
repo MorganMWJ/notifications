@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Notifications.Data;
-using Notifications.models;
+using Notifications.Email;
+using Notifications.Models;
+using Quartz;
+using System.Threading.Tasks;
 
 namespace Notifications
 {
@@ -72,7 +71,7 @@ namespace Notifications
             _context.Update(setting);
             await _context.SaveChangesAsync();
 
-            return Ok(); 
+            return Ok();
         }
 
         // DELETE api/<controller>/5
@@ -90,5 +89,7 @@ namespace Notifications
 
             return Ok();
         }
+
+
     }
 }
