@@ -18,6 +18,7 @@ namespace Notifications.Services
             {
                 msg.Subject = "Siarad: " + subject;
                 msg.Body = body;
+                msg.IsBodyHtml = true;
                 using (SmtpClient sc = new SmtpClient())
                 {
                     sc.EnableSsl = true;

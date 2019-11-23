@@ -36,8 +36,11 @@ namespace Notifications.Email
                 Task<List<Message>> task = cli.GetMockSummary(uid);
                 Task.WaitAll(task);
 
+                /* Format messages as html */
+                string mailBody = Message.ToHtml(task.Result);
+
                 /* Send email containing messages to user */
-                _emailService.Send(uid, "Daily Message Summary", task.Result.ToString());
+                _emailService.Send(uid, "Daily Message Summary", mailBody);
             }
 
         }
