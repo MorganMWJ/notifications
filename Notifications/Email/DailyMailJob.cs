@@ -23,7 +23,7 @@ namespace Notifications.Email
         public void Execute(IJobExecutionContext context)
         {
             /* Log exectution of scheduled task */
-            var message = "Entering Daily Mailing Scheduled Task" + DateTime.Now;
+            var message = "Entering Daily Mailing Scheduled Task: " + DateTime.Now;
             Debug.WriteLine(message);
 
             /* For all user settings with Daily Setting, Send Daily Summary */
@@ -33,14 +33,23 @@ namespace Notifications.Email
             {
                 /* Get messages to email from message store */
                 MessageStoreClient cli = new MessageStoreClient();
-                Task<List<Message>> task = cli.GetMockSummary(uid);
+                Task<List<Message>> task = cli.GetDailySummary(uid);
                 Task.WaitAll(task);
 
-                /* Format messages as html */
-                string mailBody = Message.ToHtml(task.Result);
+                List<Message> messages = task.Result;
 
-                /* Send email containing messages to user */
-                _emailService.Send(uid, "Daily Message Summary", mailBody);
+                if (messages.Count > 0)
+                {
+                    /* Format messages as html */
+                    string mailBody = Message.ToHtml(messages);
+
+                    /* Send email containing messages to user */
+                    _emailService.Send(uid, "Daily Message Summary", mailBody);
+                }
+                else
+                {
+                    /* Do not send an email if there are no messages */
+                }
             }
 
         }
@@ -64,23 +73,6 @@ namespace Notifications.Email
             }
             return usersWantingDailySummaries;
         }
-
-        //private void SendEmail(string uid, List<Message> messagesInBody)
-        //{
-        //    using (var msg = new MailMessage("siarad@aber.ac.uk", $"{uid}@aber.ac.uk"))
-        //    {
-        //        msg.Subject = "Siarad: Daily Message Summary";
-        //        msg.Body = messagesInBody.ToString(); //NEED TO CHANGE THIS TO PROPER OUTPUT STRING
-        //        using (SmtpClient sc = new SmtpClient())
-        //        {
-        //            sc.EnableSsl = true;
-        //            sc.Host = "smtp.office365.com ";
-        //            sc.Port = 587;
-        //            sc.Credentials = new NetworkCredential("mwj7@aber.ac.uk", "qh76T423");
-        //            sc.Send(msg);
-        //        }
-        //    }
-        //}
 
     }
 }

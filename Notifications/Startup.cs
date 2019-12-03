@@ -126,7 +126,7 @@ namespace Notifications
 
             /* STEP 5: Finally we schedule our Jobs in the scheduler using the trigger we created above. */
             _quartzScheduler.ScheduleJob(dailyJob, dailyTrigger);
-            _quartzScheduler.ScheduleJob(hourlyJob, hourlyTrigger);
+            //_quartzScheduler.ScheduleJob(hourlyJob, hourlyTrigger);
         }
     }
 }

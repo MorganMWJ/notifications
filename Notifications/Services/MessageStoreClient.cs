@@ -2,10 +2,11 @@
 using Notifications.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Notifications.Email
+namespace Notifications.Services
 {
     public class MessageStoreClient
     {
@@ -15,28 +16,28 @@ namespace Notifications.Email
         {
             client = new HttpClient //MOVE THIS SO IT IS INSTEAD INJECTED VIA STARTUP DEPENDENCY INCJECTION
             {
-                BaseAddress = new Uri("https://localhost:44360/") //CHANGE THIS
+                BaseAddress = new Uri("http://localhost:8080") //CHANGE THIS
             };
             client.DefaultRequestHeaders.Clear();
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         }
 
         //REMOVE THIS WHEN ENDPOINTS WORK
-        public async Task<List<Message>> GetMockSummary(string uid)
-        {
-            List<Message> mockMessagesToReturn = new List<Message>();
-            mockMessagesToReturn.Add(new Message() { Id = 1, Body = "First message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, Uid = uid });
-            mockMessagesToReturn.Add(new Message() { Id = 2, Body = "Second message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, Uid = uid });
-            mockMessagesToReturn.Add(new Message() { Id = 3, Body = "Third message body", IsDeleted = true, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, Uid = uid });
-            mockMessagesToReturn.Add(new Message() { Id = 4, Body = "Fourth message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, Uid = uid });
-            return mockMessagesToReturn;
-        }
+        //public async Task<List<Message>> GetMockSummaryDONTUSE(string uid)
+        //{
+        //    List<Message> mockMessagesToReturn = new List<Message>();
+        //    mockMessagesToReturn.Add(new Message() { Id = 1, Body = "First message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
+        //    mockMessagesToReturn.Add(new Message() { Id = 2, Body = "Second message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
+        //    mockMessagesToReturn.Add(new Message() { Id = 3, Body = "Third message body", IsDeleted = true, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
+        //    mockMessagesToReturn.Add(new Message() { Id = 4, Body = "Fourth message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
+        //    return mockMessagesToReturn;
+        //}
 
         public async Task<List<Message>> GetDailySummary(string uid)
         {
             List<Message> messages = null;
 
-            HttpResponseMessage response = await client.GetAsync("/api/daily/" + uid);
+            HttpResponseMessage response = await client.GetAsync("/MessageStore/api/messages/daily/" + uid);
             if (response.IsSuccessStatusCode)
             {
                 string responseString = response.Content.ReadAsStringAsync().Result;
@@ -46,7 +47,7 @@ namespace Notifications.Email
             }
             else
             {
-                Console.WriteLine($"Error accessing the daily summary resource for user {uid}");
+                Debug.WriteLine($"Error accessing the daily summary resource for user {uid}");
             }
 
             return messages;
@@ -56,7 +57,7 @@ namespace Notifications.Email
         {
             List<Message> messages = null;
 
-            HttpResponseMessage response = await client.GetAsync("/api/mentions/" + uid);
+            HttpResponseMessage response = await client.GetAsync("/MessageStore/api/messages/mentions/" + uid);
             if (response.IsSuccessStatusCode)
             {
                 string responseString = response.Content.ReadAsStringAsync().Result;
@@ -66,7 +67,7 @@ namespace Notifications.Email
             }
             else
             {
-                Console.WriteLine($"Error accessing the mentions summary resource for user {uid}");
+                Debug.WriteLine($"Error accessing the mentions summary resource for user {uid}");
             }
 
             return messages;
@@ -76,7 +77,7 @@ namespace Notifications.Email
         {
             List<Message> messages = null;
 
-            HttpResponseMessage response = await client.GetAsync("/api/replies/" + uid);
+            HttpResponseMessage response = await client.GetAsync("/MessageStore/api/messages/replies/" + uid);
             if (response.IsSuccessStatusCode)
             {
                 string responseString = response.Content.ReadAsStringAsync().Result;
@@ -86,7 +87,7 @@ namespace Notifications.Email
             }
             else
             {
-                Console.WriteLine($"Error accessing the replies summary resource for user {uid}");
+                Debug.WriteLine($"Error accessing the replies summary resource for user {uid}");
             }
 
             return messages;
