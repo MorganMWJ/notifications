@@ -27,5 +27,11 @@ namespace Notifications.Jobs
                  job.Execute(context);
             }
         }
+
+        // FIXME - added for Quarty 3.0.7
+        Task IJob.Execute(IJobExecutionContext context)
+        {
+            //throw new NotImplementedException();
+        }
     }
 }

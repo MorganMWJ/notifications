@@ -11,16 +11,19 @@ using Notifications.Services;
 using Quartz;
 using Quartz.Impl;
 using System.Collections.Specialized;
+using System.Threading.Tasks; // FIXME - needed to be added
 
 namespace Notifications
 {
     public class Startup
     {
+        // FIXME - needed to be converted to a Task<>
         private IScheduler _quartzScheduler;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _quartzScheduler = ConfigureQuartz();
+            _quartzScheduler = ConfigureQuartz().Result;
         }
 
         public IConfiguration Configuration { get; }
@@ -56,6 +59,7 @@ namespace Notifications
 
         private void OnShutdown()
         {
+            /* FIXME - this will need sorting - assuming scheduler, but working with Task */
             if (!_quartzScheduler.IsShutdown)
             {
                 _quartzScheduler.Shutdown();
@@ -75,6 +79,7 @@ namespace Notifications
             }
 
             /* Use custom factory so I can use dependency injection in scheduled tasks */
+            // FIXME - commented out next line. Needs updating. 
             _quartzScheduler.JobFactory = new AspnetCoreJobFactory(app.ApplicationServices);
 
             app.UseHttpsRedirection();
@@ -85,7 +90,7 @@ namespace Notifications
 
         }
 
-        public IScheduler ConfigureQuartz()
+        public async Task<IScheduler> ConfigureQuartz()
         {
             NameValueCollection props = new NameValueCollection
             {
@@ -94,8 +99,8 @@ namespace Notifications
                 {"quartz.jobStore.type","Quartz.Simpl.RAMJobStore, Quartz"}
             };
             StdSchedulerFactory factory = new StdSchedulerFactory(props);
-            var scheduler = factory.GetScheduler();
-            scheduler.Start();
+            var scheduler = await factory.GetScheduler();
+            await scheduler.Start();
             return scheduler;
         }
 
@@ -125,6 +130,7 @@ namespace Notifications
                 .Build();
 
             /* STEP 5: Finally we schedule our Jobs in the scheduler using the trigger we created above. */
+            // FIXME - uncomment line
             _quartzScheduler.ScheduleJob(dailyJob, dailyTrigger);
             //_quartzScheduler.ScheduleJob(hourlyJob, hourlyTrigger);
         }

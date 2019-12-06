@@ -98,5 +98,11 @@ namespace Notifications.Email
                 }
             }
         }
+
+        // FIXME - this needed to be added for Quartz 3.0.7
+        Task IJob.Execute(IJobExecutionContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

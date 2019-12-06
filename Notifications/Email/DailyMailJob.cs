@@ -54,6 +54,12 @@ namespace Notifications.Email
 
         }
 
+        // FIXME - added to confirm to the interface
+        Task IJob.Execute(IJobExecutionContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         /**
          * Gather a lit of UIDs of the users that want a daily summary email.
          */
