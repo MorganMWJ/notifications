@@ -20,7 +20,7 @@ namespace Notifications.Email
             _dbContext = dbContext;
         }
 
-        public void Execute(IJobExecutionContext context)
+        public async Task Execute(IJobExecutionContext context)
         {
             /* Log exectution of scheduled task */
             var message = "Entering Daily Mailing Scheduled Task: " + DateTime.Now;
@@ -33,10 +33,11 @@ namespace Notifications.Email
             {
                 /* Get messages to email from message store */
                 MessageStoreClient cli = new MessageStoreClient();
-                Task<List<Message>> task = cli.GetDailySummary(uid);
-                Task.WaitAll(task);
+                List<Message> messages = await cli.GetMockSummaryDONTUSE(uid);
 
-                List<Message> messages = task.Result;
+                //Task<List<Message>> task = cli.GetDailySummary(uid);
+                //Task.WaitAll(task);
+                //List<Message> messages = task.Result;
 
                 if (messages.Count > 0)
                 {
@@ -52,12 +53,6 @@ namespace Notifications.Email
                 }
             }
 
-        }
-
-        // FIXME - added to confirm to the interface
-        Task IJob.Execute(IJobExecutionContext context)
-        {
-            throw new NotImplementedException();
         }
 
         /**

@@ -20,7 +20,7 @@ namespace Notifications.Email
             _dbContext = dbContext;
         }
 
-        public void Execute(IJobExecutionContext context)
+        public async Task Execute(IJobExecutionContext context)
         {
             var message = "Entering Hourly Mail Scheduled Task: " + DateTime.Now;
             Debug.WriteLine(message);
@@ -39,27 +39,29 @@ namespace Notifications.Email
                     if (s.Mentions && s.Replies) //Both
                     {
                         /* Get messages to email from message store */
-                        Task<List<Message>> task = cli.GetMentionsSummary(s.Uid);
-                        Task.WaitAll(task);
+                        List<Message> mentionMessages = await cli.GetMentionsSummary(s.Uid);
+                        //Task<List<Message>> task = cli.GetMentionsSummary(s.Uid);
+                        //Task.WaitAll(task);
 
                         /* Only send an email if there are messages to notify */
-                        if (task.Result.Count > 0)
+                        if (mentionMessages.Any())
                         {
                             /* Format messages as html */
-                            string mailBody = Message.ToHtml(task.Result);
+                            string mailBody = Message.ToHtml(mentionMessages);
 
                             /* Send email containing messages to user */
                             _emailService.Send(s.Uid, "Mention Message Summary", mailBody);
                         }
 
                         /* Get messages to email from message store */
-                        task = cli.GetRepliesSummary(s.Uid);
-                        Task.WaitAll(task);
+                        List<Message> replyMessages = await cli.GetRepliesSummary(s.Uid);
+                        //task = cli.GetRepliesSummary(s.Uid);
+                        //Task.WaitAll(task);
 
-                        if (task.Result.Count > 0)
+                        if (replyMessages.Any())
                         {
                             /* Format messages as html */
-                            string mailBody = Message.ToHtml(task.Result);
+                            string mailBody = Message.ToHtml(replyMessages);
 
                             /* Send email containing messages to user */
                             _emailService.Send(s.Uid, "Reply Message Summary", mailBody);
@@ -68,13 +70,14 @@ namespace Notifications.Email
                     else if (s.Mentions) //Just Mentions
                     {
                         /* Get messages to email from message store */
-                        Task<List<Message>> task = cli.GetMentionsSummary(s.Uid);
-                        Task.WaitAll(task);
+                        List<Message> messages = await cli.GetMentionsSummary(s.Uid);
+                        //Task<List<Message>> task = cli.GetMentionsSummary(s.Uid);
+                        //Task.WaitAll(task);
 
-                        if (task.Result.Count > 0)
+                        if (messages.Any())
                         {
                             /* Format messages as html */
-                            string mailBody = Message.ToHtml(task.Result);
+                            string mailBody = Message.ToHtml(messages);
 
                             /* Send email containing messages to user */
                             _emailService.Send(s.Uid, "Mention Message Summary", mailBody);
@@ -83,13 +86,14 @@ namespace Notifications.Email
                     else if (s.Replies) //Just Replies
                     {
                         /* Get messages to email from message store */
-                        Task<List<Message>> task = cli.GetRepliesSummary(s.Uid);
-                        Task.WaitAll(task);
+                        List<Message> messages = await cli.GetRepliesSummary(s.Uid);
+                        //Task<List<Message>> task = cli.GetRepliesSummary(s.Uid);
+                        //Task.WaitAll(task);
 
-                        if (task.Result.Count > 0)
+                        if (messages.Any())
                         {
                             /* Format messages as html */
-                            string mailBody = Message.ToHtml(task.Result);
+                            string mailBody = Message.ToHtml(messages);
 
                             /* Send email containing messages to user */
                             _emailService.Send(s.Uid, "Reply Message Summary", mailBody);
@@ -97,12 +101,6 @@ namespace Notifications.Email
                     } 
                 }
             }
-        }
-
-        // FIXME - this needed to be added for Quartz 3.0.7
-        Task IJob.Execute(IJobExecutionContext context)
-        {
-            throw new NotImplementedException();
         }
     }
 }

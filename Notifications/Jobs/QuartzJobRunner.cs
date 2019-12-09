@@ -17,21 +17,21 @@ namespace Notifications.Jobs
             _serviceProvider = serviceProvider;
         }
 
-        public void Execute(IJobExecutionContext context)
+        public async Task Execute(IJobExecutionContext context)
         {
             using (var scope = _serviceProvider.CreateScope())
             {
                 var jobType = context.JobDetail.JobType;
                 var job = scope.ServiceProvider.GetRequiredService(jobType) as IJob;
 
-                 job.Execute(context);
+                 await job.Execute(context);
             }
         }
 
-        // FIXME - added for Quarty 3.0.7
-        Task IJob.Execute(IJobExecutionContext context)
-        {
-            //throw new NotImplementedException();
-        }
+        //// FIXME - added for Quarty 3.0.7
+        //Task IJob.Execute(IJobExecutionContext context)
+        //{
+        //    //throw new NotImplementedException();
+        //}
     }
 }
