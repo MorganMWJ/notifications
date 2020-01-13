@@ -10,6 +10,7 @@ using Notifications.Jobs;
 using Notifications.Services;
 using Quartz;
 using Quartz.Impl;
+using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks; // FIXME - needed to be added
 
@@ -38,13 +39,13 @@ namespace Notifications
             services.AddSingleton<IEmailService, EmailService>();
 
             /* HTTP Client Service */
-            /*services.AddHttpClient("messageStoreClient", client =>
+            services.AddHttpClient("messageStoreClient", client =>
             {
-                client.BaseAddress = new Uri("https://localhost:44360/"); //CHANGE THIS
+                client.BaseAddress = new Uri("https://m56-docker1.dcs.aber.ac.uk:8280/");
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
-            */
+            
 
             /* PostgreSQL Database Service */
             services.AddDbContext<NotificationsContext>(options =>
@@ -114,9 +115,9 @@ namespace Notifications
             ITrigger dailyTrigger = TriggerBuilder.Create()
                 .WithDailyTimeIntervalSchedule
                   (s =>
-                    s.WithIntervalInSeconds(15) //DEBUG TIME CHANGE THIS
+                    s.WithIntervalInSeconds(3600 * 24)
                     .OnEveryDay()
-                    //.StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
+                    .StartingDailyAt(TimeOfDay.HourAndMinuteOfDay(0, 0))
                    )
                 .Build();
 
@@ -124,7 +125,7 @@ namespace Notifications
             ITrigger hourlyTrigger = TriggerBuilder.Create()
                 .WithDailyTimeIntervalSchedule
                   (s =>
-                    s.WithIntervalInSeconds(5) //DEBUG TIME CHANGE THIS
+                    s.WithIntervalInSeconds(3600)
                     .OnEveryDay()
                    )
                 .Build();

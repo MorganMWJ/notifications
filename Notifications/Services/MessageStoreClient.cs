@@ -10,16 +10,11 @@ namespace Notifications.Services
 {
     public class MessageStoreClient
     {
-        private readonly HttpClient client;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public MessageStoreClient()
+        public MessageStoreClient(IHttpClientFactory clientFactory)
         {
-            client = new HttpClient //MOVE THIS SO IT IS INSTEAD INJECTED VIA STARTUP DEPENDENCY INCJECTION
-            {
-                BaseAddress = new Uri("http://localhost:8080") //CHANGE THIS
-            };
-            client.DefaultRequestHeaders.Clear();
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
+            _clientFactory = clientFactory;
         }
 
         //REMOVE THIS WHEN ENDPOINTS WORK
@@ -37,6 +32,7 @@ namespace Notifications.Services
         {
             List<Message> messages = null;
 
+            var client = _clientFactory.CreateClient("messageStoreClient");
             HttpResponseMessage response = await client.GetAsync("/MessageStore/api/messages/daily/" + uid);
             if (response.IsSuccessStatusCode)
             {
@@ -57,6 +53,7 @@ namespace Notifications.Services
         {
             List<Message> messages = null;
 
+            var client = _clientFactory.CreateClient("messageStoreClient");
             HttpResponseMessage response = await client.GetAsync("/MessageStore/api/messages/mentions/" + uid);
             if (response.IsSuccessStatusCode)
             {
@@ -77,6 +74,7 @@ namespace Notifications.Services
         {
             List<Message> messages = null;
 
+            var client = _clientFactory.CreateClient("messageStoreClient");
             HttpResponseMessage response = await client.GetAsync("/MessageStore/api/messages/replies/" + uid);
             if (response.IsSuccessStatusCode)
             {
