@@ -14,10 +14,12 @@ namespace Notifications.Email
     {
         IEmailService _emailService;
         NotificationsContext _dbContext;
-        public DailyMailJob(IEmailService emailService, NotificationsContext dbContext)
+        IMessageStoreClient _cli;
+        public DailyMailJob(IEmailService emailService, NotificationsContext dbContext, IMessageStoreClient client)
         {
             _emailService = emailService;
             _dbContext = dbContext;
+            _cli = client;
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -32,12 +34,7 @@ namespace Notifications.Email
             foreach (string uid in users)
             {
                 /* Get messages to email from message store */
-                MessageStoreClient cli = new MessageStoreClient();
-                List<Message> messages = await cli.GetMockSummaryDONTUSE(uid);
-
-                //Task<List<Message>> task = cli.GetDailySummary(uid);
-                //Task.WaitAll(task);
-                //List<Message> messages = task.Result;
+                List<Message> messages = await _cli.GetDailySummary(uid);                
 
                 if (messages.Count > 0)
                 {

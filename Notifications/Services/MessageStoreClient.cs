@@ -8,7 +8,15 @@ using System.Threading.Tasks;
 
 namespace Notifications.Services
 {
-    public class MessageStoreClient
+    public interface IMessageStoreClient
+    {
+        Task<List<Message>> GetDailySummary(string uid);
+        Task<List<Message>> GetMentionsSummary(string uid);
+        Task<List<Message>> GetRepliesSummary(string uid);
+
+    }
+
+    public class MessageStoreClient : IMessageStoreClient
     {
         private readonly IHttpClientFactory _clientFactory;
 
@@ -16,18 +24,7 @@ namespace Notifications.Services
         {
             _clientFactory = clientFactory;
         }
-
-        //REMOVE THIS WHEN ENDPOINTS WORK
-        public async Task<List<Message>> GetMockSummaryDONTUSE(string uid)
-        {
-            List<Message> mockMessagesToReturn = new List<Message>();
-            mockMessagesToReturn.Add(new Message() { Id = 1, Body = "First message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
-            mockMessagesToReturn.Add(new Message() { Id = 2, Body = "Second message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
-            mockMessagesToReturn.Add(new Message() { Id = 3, Body = "Third message body", IsDeleted = true, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
-            mockMessagesToReturn.Add(new Message() { Id = 4, Body = "Fourth message body", IsDeleted = false, TimeCreated = DateTime.Now, TimeEdited = DateTime.Now, OwnerUid = uid });
-            return mockMessagesToReturn;
-        }
-
+       
         public async Task<List<Message>> GetDailySummary(string uid)
         {
             List<Message> messages = null;

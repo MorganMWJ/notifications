@@ -14,19 +14,18 @@ namespace Notifications.Email
     {
         IEmailService _emailService;
         NotificationsContext _dbContext;
-        public HourlyMailJob(IEmailService emailService, NotificationsContext dbContext)
+        IMessageStoreClient _cli;
+        public HourlyMailJob(IEmailService emailService, NotificationsContext dbContext, IMessageStoreClient client)
         {
             _emailService = emailService;
             _dbContext = dbContext;
+            _cli = client;
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
             var message = "Entering Hourly Mail Scheduled Task: " + DateTime.Now;
             Debug.WriteLine(message);
-
-            /* client Service */
-            MessageStoreClient cli = new MessageStoreClient();
 
             /* Get all user settings */
             List<NotificationSetting> settings = _dbContext.NotificationSetting.ToList();
@@ -39,9 +38,7 @@ namespace Notifications.Email
                     if (s.Mentions && s.Replies) //Both
                     {
                         /* Get messages to email from message store */
-                        List<Message> mentionMessages = await cli.GetMentionsSummary(s.Uid);
-                        //Task<List<Message>> task = cli.GetMentionsSummary(s.Uid);
-                        //Task.WaitAll(task);
+                        List<Message> mentionMessages = await _cli.GetMentionsSummary(s.Uid);
 
                         /* Only send an email if there are messages to notify */
                         if (mentionMessages.Any())
@@ -54,9 +51,7 @@ namespace Notifications.Email
                         }
 
                         /* Get messages to email from message store */
-                        List<Message> replyMessages = await cli.GetRepliesSummary(s.Uid);
-                        //task = cli.GetRepliesSummary(s.Uid);
-                        //Task.WaitAll(task);
+                        List<Message> replyMessages = await _cli.GetRepliesSummary(s.Uid);
 
                         if (replyMessages.Any())
                         {
@@ -70,9 +65,7 @@ namespace Notifications.Email
                     else if (s.Mentions) //Just Mentions
                     {
                         /* Get messages to email from message store */
-                        List<Message> messages = await cli.GetMentionsSummary(s.Uid);
-                        //Task<List<Message>> task = cli.GetMentionsSummary(s.Uid);
-                        //Task.WaitAll(task);
+                        List<Message> messages = await _cli.GetMentionsSummary(s.Uid);
 
                         if (messages.Any())
                         {
@@ -86,9 +79,7 @@ namespace Notifications.Email
                     else if (s.Replies) //Just Replies
                     {
                         /* Get messages to email from message store */
-                        List<Message> messages = await cli.GetRepliesSummary(s.Uid);
-                        //Task<List<Message>> task = cli.GetRepliesSummary(s.Uid);
-                        //Task.WaitAll(task);
+                        List<Message> messages = await _cli.GetRepliesSummary(s.Uid);
 
                         if (messages.Any())
                         {

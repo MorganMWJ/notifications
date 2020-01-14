@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Notifications.Data;
 using Notifications.Email;
 using Notifications.Models;
@@ -12,11 +13,11 @@ namespace Notifications
     public class UserNotificationsController : Controller
     {
 
-        private NotificationsContext _context;
+        private readonly IDataRepository _repo;
 
-        public UserNotificationsController(NotificationsContext context)
+        public UserNotificationsController(IDataRepository repo)
         {
-            _context = context;
+            _repo = repo;
         }
 
         [HttpGet]
@@ -25,11 +26,11 @@ namespace Notifications
             return "Hello Notification World";
         }
 
-        // GET api/<controller>/5
+        // GET api/<controller>/{uid}
         [HttpGet("{uid}")]
         public async Task<IActionResult> GetSettingById(string uid)
         {
-            NotificationSetting setting = await _context.NotificationSetting.FindAsync(uid);
+            NotificationSetting setting = await _repo.GetSettingAsync(uid);
             if (setting == null)
             {
                 return NotFound();
@@ -42,50 +43,64 @@ namespace Notifications
         [HttpPost]
         public async Task<IActionResult> CreateSetting([FromBody]NotificationSetting setting)
         {
-            NotificationSetting previousSetting = await _context.NotificationSetting.FindAsync(setting.Uid);
+            NotificationSetting previousSetting = await _repo.GetSettingAsync(setting.Uid);
             if (previousSetting != null)
             {
                 return BadRequest($"Settings for user {setting.Uid} already exist");
             }
 
-            _context.NotificationSetting.Add(setting);
-            await _context.SaveChangesAsync();
+            await _repo.AddSettingAsync(setting);
             return CreatedAtAction(nameof(GetSettingById), new { uid = setting.Uid }, setting);
         }
 
-        // PUT api/<controller>/5
-        [HttpPut("{id}")]
+        // PUT api/<controller>/{uid}
+        [HttpPut("{uid}")]
         public async Task<IActionResult> UpdateSetting(string uid, [FromBody]NotificationSetting setting)
         {
-            if (uid != setting.Uid)
+            if (!uid.Equals(setting.Uid))
             {
                 return BadRequest();
             }
 
-            NotificationSetting previousSetting = await _context.NotificationSetting.FindAsync(uid);
-            if (previousSetting == null)
+            //NotificationSetting previousSetting = await _repo.GetSettingAsync(uid);
+            //if (previousSetting == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //await _repo.UpdateSettingAsync(setting);
+
+            //return Ok();
+            
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                try
+                {
+                    await _repo.UpdateSettingAsync(setting);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_repo.SettingExists(setting.Uid))
+                    {
+                        return BadRequest();
+                    }
+                    throw;
+                }
             }
-
-            _context.Update(setting);
-            await _context.SaveChangesAsync();
-
             return Ok();
         }
 
-        // DELETE api/<controller>/5
-        [HttpDelete("{id}")]
+        // DELETE api/<controller>/{uid}
+        [HttpDelete("{uid}")]
         public async Task<IActionResult> DeleteSetting(string uid)
         {
-            var setting = await _context.NotificationSetting.FindAsync(uid);
+            var setting = await _repo.GetSettingAsync(uid);
             if (setting == null)
             {
                 return NotFound();
             }
 
-            _context.NotificationSetting.Remove(setting);
-            await _context.SaveChangesAsync();
+            await _repo.DeleteSettingAsync(setting);
 
             return Ok();
         }

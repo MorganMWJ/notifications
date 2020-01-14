@@ -36,7 +36,7 @@ namespace Notifications
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             /* SMTP Email Service */
-            services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IEmailService, EmailService>();            
 
             /* HTTP Client Service */
             services.AddHttpClient("messageStoreClient", client =>
@@ -45,11 +45,15 @@ namespace Notifications
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
-            
+
+            /* Custom message store client service */
+            services.AddSingleton<IMessageStoreClient, MessageStoreClient>(); //if not working remove this class and add the functions into jobs and inject clientfacotry into jobs too
 
             /* PostgreSQL Database Service */
             services.AddDbContext<NotificationsContext>(options =>
             options.UseNpgsql(Configuration.GetConnectionString("NotificationsContext")));
+
+            services.AddScoped<IDataRepository, DataRepository>();
 
             /* Quartz Services */
             services.AddSingleton<QuartzJobRunner>();
