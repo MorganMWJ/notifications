@@ -41,7 +41,7 @@ namespace Notifications
             /* HTTP Client Service */
             services.AddHttpClient("messageStoreClient", client =>
             {
-                client.BaseAddress = new Uri("https://m56-docker1.dcs.aber.ac.uk:8280/");
+                client.BaseAddress = new Uri("http://m56-docker1.dcs.aber.ac.uk:8280/");
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });

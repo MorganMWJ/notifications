@@ -172,7 +172,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;uid&quot;:&quot;nst&quot;,&quot;daily&quot;:false,&quot;mentions&quot;:false,&quot;replies&quot;:false,&quot;notificationInterval&quot;:24,&quot;lastUpdated&quot;:&quot;2019-12-06T13:33:19.872777&quot;}</stringProp>
+                <stringProp name="Argument.value">{&quot;uid&quot;:&quot;nst&quot;,&quot;daily&quot;:false,&quot;mentions&quot;:false,&quot;replies&quot;:false,&quot;notificationInterval&quot;:4,&quot;lastUpdated&quot;:&quot;2019-12-06T13:33:19.872777&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
